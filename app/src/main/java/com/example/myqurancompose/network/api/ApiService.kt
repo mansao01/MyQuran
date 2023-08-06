@@ -10,7 +10,7 @@ import retrofit2.http.Path
 interface ApiService {
 
     @GET("data")
-    suspend fun getSurahList():ListSurahResponse
+    suspend fun getSurahList():List<ListSurahResponseItem>
 
     @GET("surat/{number}")
     suspend fun getSurahVerseList(

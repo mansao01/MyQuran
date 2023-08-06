@@ -6,13 +6,13 @@ import com.example.myqurancompose.network.response.ListSurahResponseItem
 import com.example.myqurancompose.network.response.ListSurahVerseResponse
 
 interface MyQuranRepository {
-    suspend fun getSurahList(): ListSurahResponse
+    suspend fun getSurahList(): List<ListSurahResponseItem>
 
     suspend fun getSurahVerseList(number: String): ListSurahVerseResponse
 }
 
 class NetworkMyQuranRepository(private val apiService: ApiService) : MyQuranRepository {
-    override suspend fun getSurahList(): ListSurahResponse {
+    override suspend fun getSurahList(): List<ListSurahResponseItem> {
         return apiService.getSurahList()
     }
 
