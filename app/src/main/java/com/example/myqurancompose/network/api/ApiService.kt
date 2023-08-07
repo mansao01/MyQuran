@@ -15,5 +15,5 @@ interface ApiService {
     @GET("surat/{number}")
     suspend fun getSurahVerseList(
         @Path("number") number:String
-    ):ListSurahVerseResponse
+    ):List<ListSurahVerseResponseItem>
 }

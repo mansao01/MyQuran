@@ -1,5 +1,6 @@
 package com.example.myqurancompose.ui.screen.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,12 +15,13 @@ import com.example.myqurancompose.ui.component.SurahListItem
 
 @Composable
 fun HomeScreen(
-    uiState:HomeUiState,
-    modifier: Modifier = Modifier
+    uiState: HomeUiState,
+    modifier: Modifier = Modifier,
+    navigateToDetail: (String) -> Unit
 ) {
     when (uiState) {
         is HomeUiState.Loading -> LoadingScreenWithText()
-        is HomeUiState.Success -> SurahList(surahList = uiState.surah)
+        is HomeUiState.Success -> SurahList(surahList = uiState.surah, navigateToDetail)
 
         is HomeUiState.Error -> ErrorScreen()
     }
@@ -27,12 +29,15 @@ fun HomeScreen(
 
 @Composable
 fun SurahList(
-    surahList:List<ListSurahResponseItem>,
+    surahList: List<ListSurahResponseItem>,
+    navigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.fillMaxWidth()){
-        items(surahList){ data ->
-            SurahListItem(surahItem = data)
+    LazyColumn(modifier = modifier.fillMaxWidth()) {
+        items(surahList) { data ->
+            SurahListItem(
+                surahItem = data,
+                modifier = Modifier.clickable { navigateToDetail(data.nomor) })
         }
     }
 
