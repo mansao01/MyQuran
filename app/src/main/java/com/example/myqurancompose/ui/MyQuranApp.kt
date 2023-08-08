@@ -18,8 +18,8 @@ import com.example.myqurancompose.ui.screen.home.HomeViewModel
 
 @Composable
 fun MyQuranApp(
-    navController: NavHostController = rememberNavController(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
 ) {
     NavHost(
         navController = navController,
@@ -30,17 +30,32 @@ fun MyQuranApp(
             val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
             HomeScreen(
                 uiState = homeViewModel.uiState,
-                navigateToDetail = { number ->
-                    navController.navigate(Screen.Detail.createRoute(number))
+                navigateToDetail = { number, surah, asma ->
+                    navController.navigate(Screen.Detail.createRoute(number, surah, asma))
                 })
         }
 
-        composable(Screen.Detail.route, arguments = listOf(navArgument("number") {
-            type = NavType.StringType
-        })) { data ->
+        composable(
+            Screen.Detail.route, arguments =
+            listOf(navArgument("number") {
+                type = NavType.StringType
+            }, navArgument("surah") {
+                type = NavType.StringType
+            }, navArgument("asma") {
+                type = NavType.StringType
+            })
+        ) { data ->
             val detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
             val number = data.arguments?.getString("number") ?: ""
-            DetailScreen(number = number, uiState = detailViewModel.uiState)
+            val surah = data.arguments?.getString("surah") ?: ""
+            val asma = data.arguments?.getString("asma") ?: ""
+
+            DetailScreen(
+                number = number,
+                surah = surah,
+                asma = asma,
+                uiState = detailViewModel.uiState
+            )
         }
     }
 }

@@ -26,7 +26,10 @@ fun SurahVerseListItem(
     surahVerseListItem: ListSurahVerseResponseItem,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp).padding(top = 8.dp)) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 8.dp)
+        .padding(top = 8.dp)) {
         Column(
             modifier = modifier
                 .padding(8.dp),
