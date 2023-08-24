@@ -2,7 +2,6 @@ package com.example.myqurancompose.ui.screen.home
 
 import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,11 +17,15 @@ import com.example.myqurancompose.ui.component.SurahListItem
 fun HomeScreen(
     uiState: HomeUiState,
     modifier: Modifier = Modifier,
-    navigateToDetail: (String, String, String) -> Unit
+    navigateToDetail: (String, String, String, String) -> Unit
 ) {
     when (uiState) {
         is HomeUiState.Loading -> LoadingScreenWithText()
-        is HomeUiState.Success -> SurahList(surahList = uiState.surah, navigateToDetail)
+        is HomeUiState.Success -> SurahList(
+            surahList = uiState.surah,
+            navigateToDetail,
+            modifier = modifier
+        )
 
         is HomeUiState.Error -> ErrorScreen()
     }
@@ -31,18 +34,20 @@ fun HomeScreen(
 @Composable
 fun SurahList(
     surahList: List<ListSurahResponseItem>,
-    navigateToDetail: (String, String, String) -> Unit,
+    navigateToDetail: (String, String, String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier.fillMaxWidth()) {
-        items(surahList) { data ->
+        items(surahList, key = { it.nomor }) { data ->
             SurahListItem(
                 surahItem = data,
                 modifier = Modifier.clickable {
                     navigateToDetail(
                         data.nomor,
                         data.nama,
-                        data.asma
+                        data.asma,
+                        data.arti,
+//                        data.keterangan
                     )
                 })
         }

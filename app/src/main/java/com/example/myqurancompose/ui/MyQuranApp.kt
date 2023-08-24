@@ -30,30 +30,52 @@ fun MyQuranApp(
             val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
             HomeScreen(
                 uiState = homeViewModel.uiState,
-                navigateToDetail = { number, surah, asma ->
-                    navController.navigate(Screen.Detail.createRoute(number, surah, asma))
+                navigateToDetail = { number, surah, asma, arti ->
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            number,
+                            surah,
+                            asma,
+                            arti,
+//                            keterangan
+                        )
+                    )
                 })
         }
 
         composable(
             Screen.Detail.route, arguments =
-            listOf(navArgument("number") {
-                type = NavType.StringType
-            }, navArgument("surah") {
-                type = NavType.StringType
-            }, navArgument("asma") {
-                type = NavType.StringType
-            })
+            listOf(
+                navArgument("number") {
+                    type = NavType.StringType
+                },
+                navArgument("surah") {
+                    type = NavType.StringType
+                },
+                navArgument("asma") {
+                    type = NavType.StringType
+                },
+                navArgument("arti") {
+                    type = NavType.StringType
+                },
+//                navArgument("keterangan") {
+//                    type = NavType.StringType
+//                },
+            )
         ) { data ->
             val detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
             val number = data.arguments?.getString("number") ?: ""
             val surah = data.arguments?.getString("surah") ?: ""
             val asma = data.arguments?.getString("asma") ?: ""
+            val arti = data.arguments?.getString("arti") ?: ""
+//            val keterangan = data.arguments?.getString("keterangan") ?: ""
 
             DetailScreen(
                 number = number,
                 surah = surah,
                 asma = asma,
+                arti = arti,
+//                keterangan = keterangan,
                 uiState = detailViewModel.uiState
             )
         }
