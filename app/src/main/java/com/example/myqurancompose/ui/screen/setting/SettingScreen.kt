@@ -1,21 +1,110 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.myqurancompose.ui.screen.setting
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun SettingScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+fun SettingScreen(
+    settingViewModel: SettingViewModel = viewModel(factory = SettingViewModel.Factory),
+    onDarkModeChange: (Boolean) -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+    navigateToHome: () -> Unit
 
-        Text(text = "Available soon")
+) {
+    Scaffold(
+        topBar = { SettingScreenTopBar(scrollBehavior = scrollBehavior, navigate = navigateToHome) }
+    ) {
+        Surface(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+        ) {
+
+            SettingContent(settingViewModel = settingViewModel, onDarkModeChange = onDarkModeChange)
+        }
+
     }
+
+
+}
+
+@Composable
+fun SettingContent(
+    modifier: Modifier = Modifier,
+    settingViewModel: SettingViewModel,
+    onDarkModeChange: (Boolean) -> Unit
+) {
+    val uiState by settingViewModel.uiState.collectAsState()
+
+
+    val icon: (@Composable () -> Unit) = {
+        Icon(
+            imageVector = uiState.icon,
+            contentDescription = null,
+            modifier = Modifier.size(SwitchDefaults.IconSize)
+        )
+    }
+    Row(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = uiState.title, modifier = Modifier.padding(top = 4.dp), fontSize = 20.sp)
+        Switch(
+            checked = uiState.isDarkMode,
+            onCheckedChange = { isChecked ->
+                settingViewModel.selectedTheme(isChecked)
+                onDarkModeChange(isChecked)
+            },
+            thumbContent = icon
+        )
+    }
+}
+
+@Composable
+fun SettingScreenTopBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    navigate: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        scrollBehavior = scrollBehavior,
+        title = { Text(text = "Setting") },
+        navigationIcon = {
+            IconButton(onClick = { navigate() }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+            }
+
+        },
+        modifier = modifier
+    )
+
 }

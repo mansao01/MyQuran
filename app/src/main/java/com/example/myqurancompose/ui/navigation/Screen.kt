@@ -10,7 +10,6 @@ sealed class Screen(val route: String) {
             surah: String,
             asma: String,
             arti: String,
-//            keterangan: String
         ) = "home/$number/$surah/$asma/$arti"
     }
 }

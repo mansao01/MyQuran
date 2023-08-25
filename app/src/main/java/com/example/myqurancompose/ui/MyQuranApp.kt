@@ -18,12 +18,14 @@ import com.example.myqurancompose.ui.screen.detail.DetailViewModel
 import com.example.myqurancompose.ui.screen.home.HomeScreen
 import com.example.myqurancompose.ui.screen.home.HomeViewModel
 import com.example.myqurancompose.ui.screen.setting.SettingScreen
+import com.example.myqurancompose.ui.screen.setting.SettingViewModel
 
 @ExperimentalMaterial3Api
 @Composable
 fun MyQuranApp(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    onDarkModeChange: (Boolean) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     NavHost(
@@ -47,7 +49,6 @@ fun MyQuranApp(
                             surah,
                             asma,
                             arti,
-//                            keterangan
                         )
                     )
                 }
@@ -55,7 +56,15 @@ fun MyQuranApp(
         }
 
         composable(Screen.Setting.route) {
-            SettingScreen()
+            val settingViewModel: SettingViewModel = viewModel(factory = SettingViewModel.Factory)
+            SettingScreen(
+                settingViewModel = settingViewModel,
+                onDarkModeChange = onDarkModeChange,
+                scrollBehavior = scrollBehavior,
+                navigateToHome = {
+                    navController.navigate(Screen.Home.route)
+                }
+            )
         }
 
         composable(
@@ -73,9 +82,7 @@ fun MyQuranApp(
                 navArgument("arti") {
                     type = NavType.StringType
                 },
-//                navArgument("keterangan") {
-//                    type = NavType.StringType
-//                },
+
             )
         ) { data ->
             val detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
@@ -83,7 +90,6 @@ fun MyQuranApp(
             val surah = data.arguments?.getString("surah") ?: ""
             val asma = data.arguments?.getString("asma") ?: ""
             val arti = data.arguments?.getString("arti") ?: ""
-//            val keterangan = data.arguments?.getString("keterangan") ?: ""
 
             DetailScreen(
                 number = number,
