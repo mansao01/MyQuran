@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MyQuran Compose</string>
+    <string name="myquran">MyQuran</string>
 </resources>

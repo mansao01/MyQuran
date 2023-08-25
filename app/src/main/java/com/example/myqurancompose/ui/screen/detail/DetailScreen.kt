@@ -4,19 +4,29 @@ package com.example.myqurancompose.ui.screen.detail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -28,13 +38,15 @@ import com.example.myqurancompose.ui.component.LoadingScreenWithText
 import com.example.myqurancompose.ui.component.SurahVerseListItem
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterial3Api
 @Composable
 fun DetailScreen(
     number: String,
     surah: String,
     asma: String,
     arti: String,
-//    keterangan: String,
+    scrollBehavior: TopAppBarScrollBehavior,
+    navigateToHome: () -> Unit,
     uiState: DetailUiState,
     modifier: Modifier = Modifier,
     viewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
@@ -49,8 +61,9 @@ fun DetailScreen(
             surah = surah,
             asma = asma,
             arti = arti,
-//            keterangan = keterangan,
+            scrollBehavior = scrollBehavior,
             surahVerseItem = uiState.surahVerse,
+            navigateToHome = navigateToHome,
             modifier = modifier
         )
 
@@ -59,32 +72,47 @@ fun DetailScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreenContent(
     surah: String,
     asma: String,
     arti: String,
-//    keterangan: String,
+    scrollBehavior: TopAppBarScrollBehavior,
+    navigateToHome: () -> Unit,
     surahVerseItem: List<ListSurahVerseResponseItem>,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            DetailScreenTopBar(
+                scrollBehavior = scrollBehavior,
+                surah = surah,
+                navigateToHome = navigateToHome,
+                asma = asma
+            )
+        }
     ) {
-        Text(
-            text = asma,
-            style = MaterialTheme.typography.titleLarge,
-        )
-        Text(text = surah, style = MaterialTheme.typography.titleMedium)
-        MoreDetailSection(
-            surahVerseItem = surahVerseItem, surah = surah,
-            asma = asma,
-            arti = arti,
-//            keterangan = keterangan
-        )
+        Surface(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier
+            ) {
+                MoreDetailSection(
+                    surahVerseItem = surahVerseItem, surah = surah,
+                    asma = asma,
+                    arti = arti,
+                )
 
 
+            }
+        }
     }
 
 }
@@ -93,7 +121,10 @@ fun DetailScreenContent(
 fun SurahVerseList(
     surahVerseItem: List<ListSurahVerseResponseItem>
 ) {
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier
+            .padding(bottom = 4.dp)
+    ) {
         items(surahVerseItem, key = { it.id }) { data ->
             SurahVerseListItem(surahVerseListItem = data)
         }
@@ -107,7 +138,6 @@ fun MoreDetailSection(
     surah: String,
     asma: String,
     arti: String,
-//    keterangan: String
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
@@ -123,7 +153,6 @@ fun MoreDetailSection(
                 Text(text = asma)
                 Text(text = surah)
                 Text(text = arti)
-//                Text(text = keterangan, modifier = Modifier.align(Alignment.Start))
             }
         }
     ) {
@@ -145,25 +174,38 @@ fun MoreDetailSection(
             SurahVerseList(surahVerseItem = surahVerseItem)
         }
     }
-    //    val sheetState = rememberModalBottomSheetState()
-//    var isSheetOpen by rememberSaveable {
-//        mutableStateOf(false)
-//    }
-//    Text(
-//        text = "More detail",
-//        textDecoration = TextDecoration.Underline,
-//        fontStyle = FontStyle.Italic,
-//        style = MaterialTheme.typography.bodySmall,
-//        modifier = Modifier.clickable {
-//            isSheetOpen = true
-//        }
-//    )
-//    if (isSheetOpen) {
-//        ModalBottomSheet(
-//            sheetState = sheetState,
-//            onDismissRequest = { isSheetOpen = false }) {
-//            Text(text = "Cek")
-//        }
-//    }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+fun DetailScreenTopBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    surah: String,
+    asma: String,
+    navigateToHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LargeTopAppBar(
+        scrollBehavior = scrollBehavior,
+        title = {
+            Column {
+                Text(
+                    text = surah,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = asma,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        navigationIcon = {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                modifier = Modifier.clickable { navigateToHome() })
+        },
+        modifier = modifier
+    )
 }
 

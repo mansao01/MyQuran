@@ -1,6 +1,8 @@
 package com.example.myqurancompose.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,21 +17,29 @@ import com.example.myqurancompose.ui.screen.detail.DetailScreen
 import com.example.myqurancompose.ui.screen.detail.DetailViewModel
 import com.example.myqurancompose.ui.screen.home.HomeScreen
 import com.example.myqurancompose.ui.screen.home.HomeViewModel
+import com.example.myqurancompose.ui.screen.setting.SettingScreen
 
+@ExperimentalMaterial3Api
 @Composable
 fun MyQuranApp(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
         modifier = modifier.fillMaxSize()
     ) {
+
         composable(Screen.Home.route) {
             val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
             HomeScreen(
                 uiState = homeViewModel.uiState,
+                navigateToSetting = {
+                    navController.navigate(Screen.Setting.route)
+                },
+                scrollBehavior = scrollBehavior,
                 navigateToDetail = { number, surah, asma, arti ->
                     navController.navigate(
                         Screen.Detail.createRoute(
@@ -40,7 +50,12 @@ fun MyQuranApp(
 //                            keterangan
                         )
                     )
-                })
+                }
+            )
+        }
+
+        composable(Screen.Setting.route) {
+            SettingScreen()
         }
 
         composable(
@@ -75,8 +90,11 @@ fun MyQuranApp(
                 surah = surah,
                 asma = asma,
                 arti = arti,
-//                keterangan = keterangan,
-                uiState = detailViewModel.uiState
+                scrollBehavior = scrollBehavior,
+                uiState = detailViewModel.uiState,
+                navigateToHome = {
+                    navController.navigate(Screen.Home.route)
+                }
             )
         }
     }
