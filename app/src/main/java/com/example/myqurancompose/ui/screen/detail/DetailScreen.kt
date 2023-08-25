@@ -49,11 +49,11 @@ fun DetailScreen(
     navigateToHome: () -> Unit,
     uiState: DetailUiState,
     modifier: Modifier = Modifier,
-    viewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
+    detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
 ) {
     LaunchedEffect(Unit) {
 
-        viewModel.getSurahVerseList(number)
+        detailViewModel.getSurahVerseList(number)
     }
     when (uiState) {
         is DetailUiState.Loading -> LoadingScreenWithText()
@@ -67,7 +67,9 @@ fun DetailScreen(
             modifier = modifier
         )
 
-        is DetailUiState.Error -> ErrorScreen()
+        is DetailUiState.Error -> ErrorScreen(refresh = {
+            detailViewModel.getSurahVerseList(number)
+        })
     }
 
 }

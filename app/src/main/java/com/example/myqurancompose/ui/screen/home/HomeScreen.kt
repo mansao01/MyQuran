@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myqurancompose.R
 import com.example.myqurancompose.network.response.ListSurahResponseItem
 import com.example.myqurancompose.ui.common.HomeUiState
@@ -38,6 +39,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToSetting: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
+    homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     navigateToDetail: (String, String, String, String) -> Unit
 ) {
     when (uiState) {
@@ -50,7 +52,9 @@ fun HomeScreen(
             modifier = modifier
         )
 
-        is HomeUiState.Error -> ErrorScreen()
+        is HomeUiState.Error -> ErrorScreen(refresh = {
+            homeViewModel.getSurahList()
+        })
     }
 }
 
@@ -83,9 +87,11 @@ fun SurahList(
     navigateToDetail: (String, String, String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier
-        .fillMaxWidth()
-        .padding(bottom = 4.dp))
+    LazyColumn(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp)
+    )
     {
         items(surahList, key = { it.nomor }) { data ->
             SurahListItem(

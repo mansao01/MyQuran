@@ -23,7 +23,7 @@ class HomeViewModel(private val myQuranRepository: MyQuranRepository): ViewModel
         getSurahList()
     }
 
-    private fun getSurahList(){
+     fun getSurahList(){
         viewModelScope.launch {
             uiState = HomeUiState.Loading
             uiState = try {
