@@ -30,7 +30,7 @@ import com.example.myqurancompose.R
 import com.example.myqurancompose.network.response.ListSurahResponseItem
 import com.example.myqurancompose.ui.common.HomeUiState
 import com.example.myqurancompose.ui.component.ErrorScreen
-import com.example.myqurancompose.ui.component.LoadingScreenWithText
+import com.example.myqurancompose.ui.component.HomeLoadingWithShimmer
 import com.example.myqurancompose.ui.component.SurahListItem
 
 @Composable
@@ -53,7 +53,7 @@ fun HomeScreen(
                 .padding(it)
         ) {
             when (uiState) {
-                is HomeUiState.Loading -> LoadingScreenWithText()
+                is HomeUiState.Loading -> HomeLoadingWithShimmer()
                 is HomeUiState.Success -> HomeContent(
                     surahList = uiState.surah,
                     navigateToDetail = navigateToDetail,
