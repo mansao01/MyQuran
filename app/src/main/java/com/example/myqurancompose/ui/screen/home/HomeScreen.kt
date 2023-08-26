@@ -42,32 +42,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     navigateToDetail: (String, String, String, String) -> Unit
 ) {
-    when (uiState) {
-        is HomeUiState.Loading -> LoadingScreenWithText()
-        is HomeUiState.Success -> HomeContent(
-            surahList = uiState.surah,
-            navigateToDetail = navigateToDetail,
-            navigate = navigateToSetting,
-            scrollBehavior = scrollBehavior,
-            modifier = modifier
-        )
 
-        is HomeUiState.Error -> ErrorScreen(refresh = {
-            homeViewModel.getSurahList()
-        })
-    }
-}
-
-@Composable
-fun HomeContent(
-    surahList: List<ListSurahResponseItem>,
-    navigateToDetail: (String, String, String, String) -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior,
-    navigate: () -> Unit,
-    modifier: Modifier = Modifier
-) {
     Scaffold(
-        topBar = { HomeScreenTopBar(scrollBehavior = scrollBehavior, navigate = { navigate() }) }
+        topBar = { HomeScreenTopBar(scrollBehavior = scrollBehavior, navigate = { navigateToSetting() }) }
     ) {
         Surface(
             modifier = modifier
@@ -75,9 +52,31 @@ fun HomeContent(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .padding(it)
         ) {
-            SurahList(surahList = surahList, navigateToDetail = navigateToDetail)
+            when (uiState) {
+                is HomeUiState.Loading -> LoadingScreenWithText()
+                is HomeUiState.Success -> HomeContent(
+                    surahList = uiState.surah,
+                    navigateToDetail = navigateToDetail,
+                    modifier = modifier
+                )
+
+                is HomeUiState.Error -> ErrorScreen(refresh = {
+                    homeViewModel.getSurahList()
+                })
+            }
         }
     }
+
+}
+
+@Composable
+fun HomeContent(
+    surahList: List<ListSurahResponseItem>,
+    navigateToDetail: (String, String, String, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    SurahList(surahList = surahList, navigateToDetail = navigateToDetail, modifier = modifier)
 
 }
 
@@ -102,7 +101,6 @@ fun SurahList(
                         data.nama,
                         data.asma,
                         data.arti,
-//                        data.keterangan
                     )
                 })
         }

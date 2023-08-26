@@ -52,39 +52,8 @@ fun DetailScreen(
     detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
 ) {
     LaunchedEffect(Unit) {
-
         detailViewModel.getSurahVerseList(number)
     }
-    when (uiState) {
-        is DetailUiState.Loading -> LoadingScreenWithText()
-        is DetailUiState.Success -> DetailScreenContent(
-            surah = surah,
-            asma = asma,
-            arti = arti,
-            scrollBehavior = scrollBehavior,
-            surahVerseItem = uiState.surahVerse,
-            navigateToHome = navigateToHome,
-            modifier = modifier
-        )
-
-        is DetailUiState.Error -> ErrorScreen(refresh = {
-            detailViewModel.getSurahVerseList(number)
-        })
-    }
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DetailScreenContent(
-    surah: String,
-    asma: String,
-    arti: String,
-    scrollBehavior: TopAppBarScrollBehavior,
-    navigateToHome: () -> Unit,
-    surahVerseItem: List<ListSurahVerseResponseItem>,
-    modifier: Modifier = Modifier
-) {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -101,20 +70,46 @@ fun DetailScreenContent(
                 .fillMaxSize()
                 .padding(it)
         ) {
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier
-            ) {
-                MoreDetailSection(
-                    surahVerseItem = surahVerseItem, surah = surah,
+            when (uiState) {
+                is DetailUiState.Loading -> LoadingScreenWithText()
+                is DetailUiState.Success -> DetailScreenContent(
+                    surah = surah,
                     asma = asma,
                     arti = arti,
+                    surahVerseItem = uiState.surahVerse,
+                    modifier = modifier
                 )
 
-
+                is DetailUiState.Error -> ErrorScreen(refresh = {
+                    detailViewModel.getSurahVerseList(number)
+                })
             }
         }
+    }
+
+
+}
+
+@Composable
+fun DetailScreenContent(
+    surah: String,
+    asma: String,
+    arti: String,
+    surahVerseItem: List<ListSurahVerseResponseItem>,
+    modifier: Modifier = Modifier
+) {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        MoreDetailSection(
+            surahVerseItem = surahVerseItem, surah = surah,
+            asma = asma,
+            arti = arti,
+        )
+
+
     }
 
 }
