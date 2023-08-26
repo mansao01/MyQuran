@@ -22,7 +22,7 @@ fun SurahListItem(
             .fillMaxWidth()
             .padding(top = 4.dp)
     ) {
-        Column() {
+        Column {
             Text(
                 text = surahItem.nama,
                 style = MaterialTheme.typography.bodyLarge,

@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myqurancompose.network.response.ListSurahVerseResponseItem
 import com.example.myqurancompose.ui.common.DetailUiState
+import com.example.myqurancompose.ui.component.DetailLoadingWithShimmer
 import com.example.myqurancompose.ui.component.ErrorScreen
-import com.example.myqurancompose.ui.component.LoadingScreenWithText
 import com.example.myqurancompose.ui.component.SurahVerseListItem
 import kotlinx.coroutines.launch
 
@@ -71,7 +71,7 @@ fun DetailScreen(
                 .padding(it)
         ) {
             when (uiState) {
-                is DetailUiState.Loading -> LoadingScreenWithText()
+                is DetailUiState.Loading -> DetailLoadingWithShimmer()
                 is DetailUiState.Success -> DetailScreenContent(
                     surah = surah,
                     asma = asma,
