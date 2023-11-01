@@ -2,6 +2,7 @@
 
 package com.example.myqurancompose.ui.screen.detail
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
@@ -22,8 +24,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -31,7 +38,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myqurancompose.helper.AudioHelper
+import com.example.myqurancompose.network.response.ListSurahResponseItem
 import com.example.myqurancompose.network.response.ListSurahVerseResponseItem
+import com.example.myqurancompose.ui.SharedViewModel
 import com.example.myqurancompose.ui.common.DetailUiState
 import com.example.myqurancompose.ui.component.DetailLoadingWithShimmer
 import com.example.myqurancompose.ui.component.ErrorScreen
@@ -41,28 +51,29 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 @Composable
 fun DetailScreen(
-    number: String,
-    surah: String,
-    asma: String,
-    arti: String,
     scrollBehavior: TopAppBarScrollBehavior,
     navigateToHome: () -> Unit,
     uiState: DetailUiState,
     modifier: Modifier = Modifier,
-    detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
+    detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory),
+    sharedViewModel: SharedViewModel
 ) {
+    val quran = sharedViewModel.quranItem
+
+    Log.d("Quran Detail", quran.toString())
     LaunchedEffect(Unit) {
-        detailViewModel.getSurahVerseList(number)
+        quran?.let { detailViewModel.getSurahVerseList(it.nomor) }
     }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            DetailScreenTopBar(
-                scrollBehavior = scrollBehavior,
-                surah = surah,
-                navigateToHome = navigateToHome,
-                asma = asma
-            )
+            quran?.let {
+                DetailScreenTopBar(
+                    scrollBehavior = scrollBehavior,
+                    quran = it,
+                    navigateToHome = navigateToHome
+                )
+            }
         }
     ) {
         Surface(
@@ -73,15 +84,13 @@ fun DetailScreen(
             when (uiState) {
                 is DetailUiState.Loading -> DetailLoadingWithShimmer()
                 is DetailUiState.Success -> DetailScreenContent(
-                    surah = surah,
-                    asma = asma,
-                    arti = arti,
+                    quran = quran!!,
                     surahVerseItem = uiState.surahVerse,
                     modifier = modifier
                 )
 
                 is DetailUiState.Error -> ErrorScreen(refresh = {
-                    detailViewModel.getSurahVerseList(number)
+                    quran?.let { it1 -> detailViewModel.getSurahVerseList(it1.nomor) }
                 })
             }
         }
@@ -92,9 +101,7 @@ fun DetailScreen(
 
 @Composable
 fun DetailScreenContent(
-    surah: String,
-    asma: String,
-    arti: String,
+    quran: ListSurahResponseItem,
     surahVerseItem: List<ListSurahVerseResponseItem>,
     modifier: Modifier = Modifier
 ) {
@@ -104,12 +111,9 @@ fun DetailScreenContent(
         modifier = modifier
     ) {
         MoreDetailSection(
-            surahVerseItem = surahVerseItem, surah = surah,
-            asma = asma,
-            arti = arti,
+            surahVerseItem = surahVerseItem,
+            quran = quran
         )
-
-
     }
 
 }
@@ -132,12 +136,11 @@ fun SurahVerseList(
 @Composable
 fun MoreDetailSection(
     surahVerseItem: List<ListSurahVerseResponseItem>,
-    surah: String,
-    asma: String,
-    arti: String,
+    quran: ListSurahResponseItem
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
+    var audioState by remember { mutableStateOf(false) }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -147,9 +150,21 @@ fun MoreDetailSection(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = asma)
-                Text(text = surah)
-                Text(text = arti)
+                Text(text = quran.nama)
+                Text(text = quran.asma)
+                Text(text = quran.arti)
+            }
+
+            Button(onClick = { AudioHelper.playStream(quran.audio) }) {
+                Log.d("audioUrl", quran.audio)
+                Text(text = "Play")
+            }
+
+            DisposableEffect(quran.audio){
+                onDispose {
+                    audioState = false
+                    AudioHelper.releasePlayer()
+                }
             }
         }
     ) {
@@ -177,8 +192,7 @@ fun MoreDetailSection(
 @Composable
 fun DetailScreenTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
-    surah: String,
-    asma: String,
+    quran: ListSurahResponseItem,
     navigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -187,11 +201,11 @@ fun DetailScreenTopBar(
         title = {
             Column {
                 Text(
-                    text = surah,
+                    text = quran.nama,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = asma,
+                    text = quran.arti,
                     color = MaterialTheme.colorScheme.primary
                 )
             }

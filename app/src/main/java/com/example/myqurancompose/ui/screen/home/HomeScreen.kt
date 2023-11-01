@@ -2,7 +2,6 @@
 
 package com.example.myqurancompose.ui.screen.home
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myqurancompose.R
 import com.example.myqurancompose.network.response.ListSurahResponseItem
+import com.example.myqurancompose.ui.SharedViewModel
 import com.example.myqurancompose.ui.common.HomeUiState
 import com.example.myqurancompose.ui.component.ErrorScreen
 import com.example.myqurancompose.ui.component.HomeLoadingWithShimmer
@@ -40,11 +40,16 @@ fun HomeScreen(
     navigateToSetting: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
-    navigateToDetail: (String, String, String, String) -> Unit
+    sharedViewModel: SharedViewModel ,
+    navigateToDetail: () -> Unit
 ) {
 
     Scaffold(
-        topBar = { HomeScreenTopBar(scrollBehavior = scrollBehavior, navigate = { navigateToSetting() }) }
+        topBar = {
+            HomeScreenTopBar(
+                scrollBehavior = scrollBehavior,
+                navigate = { navigateToSetting() })
+        }
     ) {
         Surface(
             modifier = modifier
@@ -57,7 +62,8 @@ fun HomeScreen(
                 is HomeUiState.Success -> HomeContent(
                     surahList = uiState.surah,
                     navigateToDetail = navigateToDetail,
-                    modifier = modifier
+                    modifier = modifier,
+                    sharedViewModel = sharedViewModel
                 )
 
                 is HomeUiState.Error -> ErrorScreen(refresh = {
@@ -66,25 +72,32 @@ fun HomeScreen(
             }
         }
     }
-
 }
 
 @Composable
 fun HomeContent(
     surahList: List<ListSurahResponseItem>,
-    navigateToDetail: (String, String, String, String) -> Unit,
-    modifier: Modifier = Modifier
+    navigateToDetail: () -> Unit,
+    modifier: Modifier = Modifier,
+    sharedViewModel: SharedViewModel
+
 ) {
 
-    SurahList(surahList = surahList, navigateToDetail = navigateToDetail, modifier = modifier)
+    SurahList(
+        surahList = surahList,
+        navigateToDetail = navigateToDetail,
+        modifier = modifier,
+        sharedViewModel = sharedViewModel
+    )
 
 }
 
 @Composable
 fun SurahList(
     surahList: List<ListSurahResponseItem>,
-    navigateToDetail: (String, String, String, String) -> Unit,
-    modifier: Modifier = Modifier
+    navigateToDetail: () -> Unit,
+    modifier: Modifier = Modifier,
+    sharedViewModel: SharedViewModel
 ) {
     LazyColumn(
         modifier = modifier
@@ -96,16 +109,11 @@ fun SurahList(
             SurahListItem(
                 surahItem = data,
                 modifier = Modifier.clickable {
-                    navigateToDetail(
-                        data.nomor,
-                        data.nama,
-                        data.asma,
-                        data.arti,
-                    )
+                    sharedViewModel.addItem(data)
+                    navigateToDetail()
                 })
         }
     }
-    Log.d("Data", surahList.toString())
 
 }
 

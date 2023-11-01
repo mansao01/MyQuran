@@ -7,11 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.myqurancompose.ui.navigation.Screen
 import com.example.myqurancompose.ui.screen.detail.DetailScreen
 import com.example.myqurancompose.ui.screen.detail.DetailViewModel
@@ -28,6 +26,7 @@ fun MyQuranApp(
     onDarkModeChange: (Boolean) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val sharedViewModel:SharedViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
@@ -42,16 +41,10 @@ fun MyQuranApp(
                     navController.navigate(Screen.Setting.route)
                 },
                 scrollBehavior = scrollBehavior,
-                navigateToDetail = { number, surah, asma, arti ->
-                    navController.navigate(
-                        Screen.Detail.createRoute(
-                            number,
-                            surah,
-                            asma,
-                            arti,
-                        )
-                    )
-                }
+                navigateToDetail = {
+                    navController.navigate(Screen.Detail.route)
+                },
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -68,39 +61,18 @@ fun MyQuranApp(
         }
 
         composable(
-            Screen.Detail.route, arguments =
-            listOf(
-                navArgument("number") {
-                    type = NavType.StringType
-                },
-                navArgument("surah") {
-                    type = NavType.StringType
-                },
-                navArgument("asma") {
-                    type = NavType.StringType
-                },
-                navArgument("arti") {
-                    type = NavType.StringType
-                },
-
-            )
-        ) { data ->
+            Screen.Detail.route
+        ) {
             val detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
-            val number = data.arguments?.getString("number") ?: ""
-            val surah = data.arguments?.getString("surah") ?: ""
-            val asma = data.arguments?.getString("asma") ?: ""
-            val arti = data.arguments?.getString("arti") ?: ""
+
 
             DetailScreen(
-                number = number,
-                surah = surah,
-                asma = asma,
-                arti = arti,
                 scrollBehavior = scrollBehavior,
                 uiState = detailViewModel.uiState,
                 navigateToHome = {
                     navController.navigate(Screen.Home.route)
-                }
+                },
+                sharedViewModel = sharedViewModel
             )
         }
     }
