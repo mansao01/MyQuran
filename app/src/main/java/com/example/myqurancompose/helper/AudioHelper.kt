@@ -20,7 +20,7 @@ object AudioHelper {
             prepareAsync()
         }
         mediaPlayer?.setOnPreparedListener { mediaPlayer ->
-//            mediaPlayer.seekTo(currentPosition)
+            mediaPlayer.seekTo(currentPosition)
             mediaPlayer.start()
         }
 
