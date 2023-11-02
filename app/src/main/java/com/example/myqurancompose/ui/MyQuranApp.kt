@@ -55,6 +55,7 @@ fun MyQuranApp(
                 onDarkModeChange = onDarkModeChange,
                 scrollBehavior = scrollBehavior,
                 navigateToHome = {
+                    navController.popBackStack()
                     navController.navigate(Screen.Home.route)
                 }
             )
@@ -65,11 +66,11 @@ fun MyQuranApp(
         ) {
             val detailViewModel: DetailViewModel = viewModel(factory = DetailViewModel.Factory)
 
-
             DetailScreen(
                 scrollBehavior = scrollBehavior,
                 uiState = detailViewModel.uiState,
                 navigateToHome = {
+                    navController.popBackStack()
                     navController.navigate(Screen.Home.route)
                 },
                 sharedViewModel = sharedViewModel

@@ -10,11 +10,15 @@ import android.text.style.UnderlineSpan
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.PauseCircle
@@ -156,41 +160,40 @@ fun MoreDetailSection(
     content: @Composable () -> Unit,
 ) {
     var audioState by remember { mutableStateOf(false) }
-
+    val spanned = HtmlCompat.fromHtml(quran.keterangan, HtmlCompat.FROM_HTML_MODE_COMPACT)
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetPeekHeight = 0.dp,
         sheetContent = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(text = quran.nama)
                 Text(text = quran.asma)
                 Text(text = quran.arti)
                 IconButton(onClick = {
-                    if (audioState){
+                    if (audioState) {
                         AudioHelper.pauseStream()
                         audioState = false
-                    }else {
+                    } else {
                         AudioHelper.playStream(quran.audio)
                         audioState = true
                     }
                 }) {
                     if (audioState) {
                         Icon(imageVector = Icons.Default.PauseCircle, contentDescription = "play")
-                    }
-                    else {
+                    } else {
                         Icon(imageVector = Icons.Default.PlayCircle, contentDescription = "pause")
                     }
 
                 }
-                val spanned = HtmlCompat.fromHtml(quran.keterangan, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                
+
                 Text(text = spanned.toAnnotatedString(), textAlign = TextAlign.Justify)
+                Spacer(modifier = Modifier.height(8.dp))
             }
-
-
             DisposableEffect(quran.audio) {
                 onDispose {
                     audioState = false
@@ -202,6 +205,7 @@ fun MoreDetailSection(
         content()
     }
 }
+
 @Composable
 fun SurahVerseList(
     surahVerseItem: List<ListSurahVerseResponseItem>
@@ -215,6 +219,7 @@ fun SurahVerseList(
         }
     }
 }
+
 fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
     val spanned = this@toAnnotatedString
     append(spanned.toString())
@@ -225,13 +230,29 @@ fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
             is StyleSpan -> when (span.style) {
                 Typeface.BOLD -> addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
                 Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
-                Typeface.BOLD_ITALIC -> addStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end)
+                Typeface.BOLD_ITALIC -> addStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic
+                    ), start, end
+                )
             }
-            is UnderlineSpan -> addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
-            is ForegroundColorSpan -> addStyle(SpanStyle(color = Color(span.foregroundColor)), start, end)
+
+            is UnderlineSpan -> addStyle(
+                SpanStyle(textDecoration = TextDecoration.Underline),
+                start,
+                end
+            )
+
+            is ForegroundColorSpan -> addStyle(
+                SpanStyle(color = Color(span.foregroundColor)),
+                start,
+                end
+            )
         }
     }
 }
+
 @ExperimentalMaterial3Api
 @Composable
 fun DetailScreenTopBar(

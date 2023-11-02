@@ -40,7 +40,7 @@ fun HomeScreen(
     navigateToSetting: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
-    sharedViewModel: SharedViewModel ,
+    sharedViewModel: SharedViewModel,
     navigateToDetail: () -> Unit
 ) {
 
