@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                 .also { collectedState ->
                     isDarkMode.value = collectedState
                 }
-            MyQuranComposeTheme(darkTheme = isDarkMode.value) {
+            MyQuranComposeTheme(useDarkTheme = isDarkMode.value) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),

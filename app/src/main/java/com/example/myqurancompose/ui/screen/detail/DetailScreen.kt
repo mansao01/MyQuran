@@ -108,7 +108,7 @@ fun DetailScreen(
                 )
 
                 is DetailUiState.Error -> ErrorScreen(refresh = {
-                    quran?.let { it1 -> detailViewModel.getSurahVerseList(it1.nomor) }
+                    quran?.let { quranData -> detailViewModel.getSurahVerseList(quranData.nomor) }
                 })
             }
         }
