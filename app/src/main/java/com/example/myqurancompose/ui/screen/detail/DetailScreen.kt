@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -105,41 +106,48 @@ fun DetailScreenContent(
     surahVerseItem: List<ListSurahVerseResponseItem>,
     modifier: Modifier = Modifier
 ) {
+    val scope = rememberCoroutineScope()
+    val scaffoldState = rememberBottomSheetScaffoldState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         MoreDetailSection(
-            surahVerseItem = surahVerseItem,
-            quran = quran
-        )
-    }
-
-}
-
-@Composable
-fun SurahVerseList(
-    surahVerseItem: List<ListSurahVerseResponseItem>
-) {
-    LazyColumn(
-        modifier = Modifier
-            .padding(bottom = 4.dp)
-    ) {
-        items(surahVerseItem, key = { it.id }) { data ->
-            SurahVerseListItem(surahVerseListItem = data)
+            quran = quran,
+            scaffoldState = scaffoldState
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "More detail",
+                    textDecoration = TextDecoration.Underline,
+                    fontStyle = FontStyle.Italic,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.clickable {
+                        scope.launch {
+                            scaffoldState.bottomSheetState.expand()
+                        }
+                    }
+                )
+                SurahVerseList(surahVerseItem = surahVerseItem)
+            }
         }
     }
+
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoreDetailSection(
-    surahVerseItem: List<ListSurahVerseResponseItem>,
-    quran: ListSurahResponseItem
-) {
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    val scope = rememberCoroutineScope()
+    quran: ListSurahResponseItem,
+    scaffoldState: BottomSheetScaffoldState,
+    content: @Composable() () -> Unit,
+
+    ) {
     var audioState by remember { mutableStateOf(false) }
 
     BottomSheetScaffold(
@@ -160,7 +168,7 @@ fun MoreDetailSection(
                 Text(text = "Play")
             }
 
-            DisposableEffect(quran.audio){
+            DisposableEffect(quran.audio) {
                 onDispose {
                     audioState = false
                     AudioHelper.releasePlayer()
@@ -168,22 +176,20 @@ fun MoreDetailSection(
             }
         }
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "More detail",
-                textDecoration = TextDecoration.Underline,
-                fontStyle = FontStyle.Italic,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.clickable {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.expand()
-                    }
-                }
-            )
-            SurahVerseList(surahVerseItem = surahVerseItem)
+        content()
+    }
+}
+
+@Composable
+fun SurahVerseList(
+    surahVerseItem: List<ListSurahVerseResponseItem>
+) {
+    LazyColumn(
+        modifier = Modifier
+            .padding(bottom = 4.dp)
+    ) {
+        items(surahVerseItem, key = { it.id }) { data ->
+            SurahVerseListItem(surahVerseListItem = data)
         }
     }
 }
